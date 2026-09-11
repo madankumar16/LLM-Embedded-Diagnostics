@@ -1,4 +1,5 @@
 import argparse
+import math
 import os
 
 from openai import OpenAI
@@ -12,8 +13,15 @@ Give practical inspection steps and a safety note.
 """
 
 
-def explain(temperature, raw, fault):
+def explain(temperature: float, raw: int, fault: str) -> str:
     """Ask the LLM to explain an already-created rule-based diagnosis."""
+    if not math.isfinite(temperature):
+        raise ValueError("temperature must be a finite number")
+    if not 0 <= raw <= 4095:
+        raise ValueError("raw ADC value must be between 0 and 4095")
+    if not fault.strip():
+        raise ValueError("fault classification cannot be empty")
+
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise RuntimeError("Set OPENAI_API_KEY before using the LLM layer.")
@@ -22,9 +30,9 @@ def explain(temperature, raw, fault):
     model = os.getenv("OPENAI_MODEL", "gpt-5.6-luna")
 
     prompt = (
-        f"Temperature: {temperature} C\n"
+        f"Temperature: {temperature:.2f} C\n"
         f"ADC raw: {raw}\n"
-        f"Rule-based classification: {fault}\n\n"
+        f"Rule-based classification: {fault.strip()}\n\n"
         "Explain the diagnosis, measured evidence, possible causes, "
         "recommended checks, and safety considerations."
     )
