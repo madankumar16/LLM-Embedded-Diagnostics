@@ -4,6 +4,7 @@ LLM explanation layer for the embedded fault-detection research project.
 
 ## Code
 - `llm_diagnostic.py` — sends structured telemetry and an existing rule-based diagnosis to an LLM and returns an engineering explanation.
+- `requirements.txt` — Python dependency for the OpenAI SDK.
 - `docs/CODE_EXPLANATION.md` — explains the prompt, inputs, API call, security model, command-line usage, architecture, and limitations.
 
 ## Data flow
@@ -13,12 +14,17 @@ ESP32/STM32 → telemetry → rule-based diagnosis → LLM explanation → engin
 The deterministic rule-based classifier remains the primary experimental baseline. The LLM is used for explanation and decision support; it is not the sole safety-critical fault classifier.
 
 ## Run
+Install the dependency:
+```bash
+pip install -r requirements.txt
+```
+
 Set the API key as an environment variable, then run:
 ```bash
 python llm_diagnostic.py --temperature 37.2 --raw 462 --fault NORMAL
 ```
 
-Optionally select a verified model identifier with `OPENAI_MODEL`.
+The default model is `gpt-5.6-luna`. You can override it with `OPENAI_MODEL` when using another supported model identifier.
 
 ## Security
 Never commit API keys. Use an environment variable such as `OPENAI_API_KEY` and keep secrets out of source control.
