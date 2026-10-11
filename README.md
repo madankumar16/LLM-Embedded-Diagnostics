@@ -4,7 +4,8 @@ LLM explanation layer for the embedded fault-detection research project.
 
 ## Code
 - `llm_diagnostic.py` — sends structured telemetry and an existing rule-based diagnosis to an LLM and returns an engineering explanation.
-- `requirements.txt` — Python dependency for the OpenAI SDK.
+- `requirements.txt` — Python dependency for the OpenAI SDK (pinned).
+- `tests/` — unit tests (no API key or network needed): `PYTHONPATH=. python -m unittest discover -s tests`
 - `docs/CODE_EXPLANATION.md` — explains the prompt, inputs, API call, security model, command-line usage, architecture, and limitations.
 
 ## Data flow
@@ -23,6 +24,8 @@ Set the API key as an environment variable, then run:
 ```bash
 python llm_diagnostic.py --temperature 37.2 --raw 462 --fault NORMAL
 ```
+
+`--fault` must be one of the classifier's fault names: `NORMAL`, `LOW_TEMPERATURE`, `HIGH_TEMPERATURE`, `TEMPERATURE_OUT_OF_RANGE`, `SENSOR_LOW_OR_DISCONNECTED`, `SENSOR_HIGH_OR_SHORT`.
 
 The default model is `gpt-5.6-luna`. You can override it with `OPENAI_MODEL` when using another supported model identifier.
 

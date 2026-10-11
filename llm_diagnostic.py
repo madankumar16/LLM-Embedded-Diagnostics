@@ -5,6 +5,18 @@ import os
 from openai import OpenAI
 
 
+# The fault names produced by the rule-based classifier (AI-Fault-Diagnosis and
+# the ESP32/STM32 firmware). Only these are accepted, so free text can't be
+# injected into the prompt.
+KNOWN_FAULTS = {
+    "NORMAL",
+    "LOW_TEMPERATURE",
+    "HIGH_TEMPERATURE",
+    "TEMPERATURE_OUT_OF_RANGE",
+    "SENSOR_LOW_OR_DISCONNECTED",
+    "SENSOR_HIGH_OR_SHORT",
+}
+
 SYSTEM_PROMPT = """You are an embedded-systems diagnostic assistant.
 Explain the supplied measurements and an existing rule-based diagnosis to an engineer.
 Do not invent measurements, components, tests, or certainty.
@@ -19,8 +31,9 @@ def explain(temperature: float, raw: int, fault: str) -> str:
         raise ValueError("temperature must be a finite number")
     if not 0 <= raw <= 4095:
         raise ValueError("raw ADC value must be between 0 and 4095")
-    if not fault.strip():
-        raise ValueError("fault classification cannot be empty")
+    fault = fault.strip().upper()
+    if fault not in KNOWN_FAULTS:
+        raise ValueError("fault must be one of: " + ", ".join(sorted(KNOWN_FAULTS)))
 
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
@@ -32,7 +45,7 @@ def explain(temperature: float, raw: int, fault: str) -> str:
     prompt = (
         f"Temperature: {temperature:.2f} C\n"
         f"ADC raw: {raw}\n"
-        f"Rule-based classification: {fault.strip()}\n\n"
+        f"Rule-based classification: {fault}\n\n"
         "Explain the diagnosis, measured evidence, possible causes, "
         "recommended checks, and safety considerations."
     )
@@ -51,7 +64,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--temperature", type=float, required=True)
     parser.add_argument("--raw", type=int, required=True)
-    parser.add_argument("--fault", required=True)
+    parser.add_argument("--fault", required=True, choices=sorted(KNOWN_FAULTS), type=str.upper)
     args = parser.parse_args()
 
     try:
