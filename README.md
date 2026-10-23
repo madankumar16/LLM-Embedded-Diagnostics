@@ -91,7 +91,7 @@ The default model is `gpt-5.6-luna`. Set `OPENAI_MODEL` to use a different model
 |---|---|
 | `--temperature` | Reading in °C |
 | `--raw` | Raw 12-bit ADC value (0–4095) |
-| `--fault` | Label from the rule-based check (one of the six names below, any case) |
+| `--fault` | Label from the rule-based check (one of the six names above, any case) |
 
 ---
 
@@ -106,7 +106,7 @@ The tests mock the OpenAI client, so they need no API key and no internet. They 
 
 - bad inputs (NaN temperature, raw value outside 0–4095, empty or unknown fault names such as free text) are rejected before any API call
 - a missing `OPENAI_API_KEY` raises an error
-- the prompt sent to the model has the temperature, raw value and the fault name in upper case, plus the fixed system instructions
+- the prompt sent to the model has the temperature and the fault name in upper case, plus the fixed system instructions
 
 ---
 
