@@ -52,7 +52,7 @@ export OPENAI_API_KEY="your_key_here"
 
 - `temperature`: measured temperature in °C;
 - `raw`: ADC raw value;
-- `fault`: the result of the deterministic rule-based classifier.
+- `fault`: the result of the deterministic rule-based classifier. It must be one of `NORMAL`, `LOW_TEMPERATURE`, `HIGH_TEMPERATURE`, `TEMPERATURE_OUT_OF_RANGE`, `SENSOR_LOW_OR_DISCONNECTED` or `SENSOR_HIGH_OR_SHORT` (case-insensitive); anything else raises `ValueError` before the API is called.
 
 The prompt explicitly labels the rule-based classification so the LLM explains an existing diagnosis rather than silently replacing it.
 

@@ -51,7 +51,7 @@ The prompt also tells the model not to invent measurements, and to keep facts se
 
 ## ✨ Features
 
-- ✅ Checks inputs first — the temperature must be a real number, the raw ADC value 0–4095, and the fault label can't be empty
+- ✅ Checks inputs first — the temperature must be a real number, the raw ADC value 0–4095, and the fault label must be one of the six rule-engine names
 - 🔐 Reads the API key from an environment variable, so it never sits in the code
 - 🔄 You can swap the model with `OPENAI_MODEL`
 - 🖥️ Simple command-line use
@@ -81,11 +81,32 @@ python llm_diagnostic.py --temperature 37.2 --raw 462 --fault NORMAL
 python llm_diagnostic.py --temperature 37.2 --raw 0   --fault SENSOR_LOW_OR_DISCONNECTED
 ```
 
+`--fault` must be one of the rule engine's fault names:
+`NORMAL`, `LOW_TEMPERATURE`, `HIGH_TEMPERATURE`, `TEMPERATURE_OUT_OF_RANGE`, `SENSOR_LOW_OR_DISCONNECTED`, `SENSOR_HIGH_OR_SHORT`.
+Anything else is rejected before the API is called, so free text can't slip into the prompt.
+
+The default model is `gpt-5.6-luna`. Set `OPENAI_MODEL` to use a different model.
+
 | Option | Meaning |
 |---|---|
 | `--temperature` | Reading in °C |
 | `--raw` | Raw 12-bit ADC value (0–4095) |
-| `--fault` | Label from the rule-based check |
+| `--fault` | Label from the rule-based check (one of the six names below, any case) |
+
+---
+
+## 🧪 Testing
+
+```bash
+pip install -r requirements.txt
+python -m unittest discover -s tests -v
+```
+
+The tests mock the OpenAI client, so they need no API key and no internet. They check that:
+
+- bad inputs (NaN temperature, raw value outside 0–4095, empty or unknown fault names such as free text) are rejected before any API call
+- a missing `OPENAI_API_KEY` raises an error
+- the prompt sent to the model has the temperature, raw value and the fault name in upper case, plus the fixed system instructions
 
 ---
 
@@ -94,7 +115,8 @@ python llm_diagnostic.py --temperature 37.2 --raw 0   --fault SENSOR_LOW_OR_DISC
 | File | What's inside |
 |---|---|
 | `llm_diagnostic.py` | Input checks, the prompt, and the API call |
-| `requirements.txt` | Needs only the OpenAI Python SDK |
+| `requirements.txt` | Needs only the OpenAI Python SDK (pinned version) |
+| `tests/` | Unit tests — no API key or internet needed |
 | `docs/CODE_EXPLANATION.md` | Line-by-line walkthrough of the code |
 
 ---
